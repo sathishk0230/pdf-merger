@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block form %}
+    
+    <div class='container'>
+
+        <div class="form" style="text-align: center ; padding : 20px">
+            <form action="/" method="POST" enctype="multipart/form-data">
+                <input type="file" id="myfile" name="myfile">
+                <input type="submit" class="btn btn-dark" value="Upload">
+            </form>
+        </div>
+        
+        {% if kwargs.n > 0 %}
+        <div class="container" style="text-align: center ; padding : 20px">
+            <button type="button" class="btn btn-success" onclick="window.location.href='/MnD'">
+                Merge and Download
+            </button>
+        </div>
+        
+        <h1>Uploaded Files</h1>
+        <ul class="list-group">
+            {% for p in kwargs.paths %}
+            <li class="list-group-item">{{p}}</li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <h1>If u want to merge PDFs ,</h1>
+        <br>
+        <h1>U should upload some PDFs first </h1>
+        {% endif %}
+        
+    </div>
+    
+{% endblock form %}
