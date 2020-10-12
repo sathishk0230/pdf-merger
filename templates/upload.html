@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block form %}
+{% block body %}
     
     <div class='container'>
 
@@ -24,11 +24,13 @@
             {% endfor %}
         </ul>
         {% else %}
-        <h1>If u want to merge PDFs ,</h1>
-        <br>
-        <h1>U should upload some PDFs first </h1>
+        <div class="container" style="text-align: center ; padding : 20px">
+            <h1>If u want to merge PDFs ,</h1>
+            <br>
+            <h1>U should upload some PDFs first </h1>
+        </div>
         {% endif %}
         
     </div>
     
-{% endblock form %}
+{% endblock body %}

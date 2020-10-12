@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request , abort , session 
+from flask import Flask, render_template, request , abort , session , redirect , url_for
 from flask import send_from_directory
 import os , shutil
 from PyPDF2 import PdfFileReader, PdfFileWriter
@@ -21,25 +21,37 @@ def merge_pdfs(paths, output):
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads'
-app.secret_key = "some secret code"  
+app.secret_key = os.environ.get('SECRET_KEY',None)
+if not os.path.isdir(app.config['UPLOAD_FOLDER']):
+    os.mkdir(app.config['UPLOAD_FOLDER'])
 
 
 @app.route('/',methods=['GET','POST'])
 def index():
+    walk = list(os.walk(app.config['UPLOAD_FOLDER']))
+    print(walk)
+    if len(walk)>5:
+        shutil.rmtree(app.config['UPLOAD_FOLDER'])
+    else:
+        for path in walk:
+            try:
+                if 'done' in path[2]:
+                    shutil.rmtree(path[0])
+            except:
+                break
+
+    if not os.path.isdir(app.config['UPLOAD_FOLDER']):
+        os.mkdir(app.config['UPLOAD_FOLDER'])
+    # delete completed users data
     
     userID = session.get('userID',None)
     if userID==None:
-        # supports single user at a time
-        try:
-            shutil.rmtree(app.config['UPLOAD_FOLDER'])
-        except:
-            pass            
-        os.mkdir(app.config['UPLOAD_FOLDER'])
-        
-        # multi-user support
         userID = len(os.listdir(app.config['UPLOAD_FOLDER']))+1
         session['userID'] = userID
-        os.mkdir(os.path.join(app.config['UPLOAD_FOLDER'],str(session['userID'])))
+        try:
+            os.mkdir(os.path.join(app.config['UPLOAD_FOLDER'],str(session['userID'])))
+        except:
+            pass
 
     kwargs = dict()
     if request.method=='GET':
@@ -54,11 +66,22 @@ def index():
             f.save(path)
         except FileNotFoundError:
             abort(400)
-    
-    paths = os.listdir(os.path.join(app.config['UPLOAD_FOLDER'],str(session['userID'])))
-    kwargs['n'] = len(paths)
-    kwargs['paths'] = paths
+    try:
+        paths = os.listdir(os.path.join(app.config['UPLOAD_FOLDER'],str(session['userID'])))
+        # user completed download
+        if paths==None:
+            return redirect(url_for('bye'))
+        kwargs['n'] = len(paths)
+        kwargs['paths'] = paths
+    except:
+        return redirect(url_for('bye'))
+
     return render_template('upload.html',kwargs = kwargs)
+
+@app.route('/bye')
+def bye():
+    session['userID']=None
+    return render_template('bye.html',kwargs={})
 
 
 @app.route('/MnD')
@@ -66,9 +89,11 @@ def MnD():
     try:
         paths = [os.path.join(app.config['UPLOAD_FOLDER'],str(session['userID']),p) for p in os.listdir(os.path.join(app.config['UPLOAD_FOLDER'],str(session['userID'])))]
         merge_pdfs(paths, output='merged.pdf')
+        with open(os.path.join(app.config['UPLOAD_FOLDER'],str(session['userID']),'done'),'w') as file:
+            pass
         return send_from_directory('', filename='merged.pdf', as_attachment=True)
     except:
         abort(404)
         
 if __name__=='__main__':
-    app.run(debug=True)
+    app.run(debug=bool(os.environ.get('DEBUG',False)))
