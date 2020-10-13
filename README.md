@@ -1,6 +1,8 @@
 # pdf-merger
 Flask App to merge multiple PDFs
 
+**DEMO APP: [https://its-pdf-merger.herokuapp.com/](https://its-pdf-merger.herokuapp.com/)**
+
 ### Quick Start
 
 1. Clone the repo
