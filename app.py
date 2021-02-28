@@ -100,7 +100,21 @@ def MnD():
 @app.route('/billlookup/')
 def billlookup():
     data = {
-        'key1':1,
+        'key1':"1",
+        'key':"20"
+    }
+    # if request.method=="POST":
+    response = app.response_class(
+        response=json.dumps(data),
+        status=200,
+        mimetype='application/json'
+    )
+    return response
+
+@app.route('/billpayment/')
+def billlookup():
+    data = {
+        'key1':"1",
         'key2':"20"
     }
     # if request.method=="POST":
