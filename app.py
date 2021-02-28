@@ -2,7 +2,7 @@ from flask import Flask, render_template, request , abort , session , redirect ,
 from flask import send_from_directory
 import os , shutil
 from PyPDF2 import PdfFileReader, PdfFileWriter
-
+import json
 
 
 def merge_pdfs(paths, output):
@@ -21,7 +21,7 @@ def merge_pdfs(paths, output):
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads'
-app.secret_key = os.environ.get('SECRET_KEY',None)
+app.secret_key = os.environ.get('SECRET_KEY','ts)369t=l^xxb&o0-w@q8z$ri#=8w_)1c(hkm*dt2ri0ch(u07')
 if not os.path.isdir(app.config['UPLOAD_FOLDER']):
     os.mkdir(app.config['UPLOAD_FOLDER'])
 
@@ -94,6 +94,22 @@ def MnD():
         return send_from_directory('', filename='merged.pdf', as_attachment=True)
     except:
         abort(404)
-        
+
+
+
+@app.route('/billlookup/')
+def billlookup():
+    data = {
+        'key1':1,
+        'key2':"20"
+    }
+    # if request.method=="POST":
+    response = app.response_class(
+        response=json.dumps(data),
+        status=200,
+        mimetype='application/json'
+    )
+    return response
+
 if __name__=='__main__':
     app.run(debug=bool(os.environ.get('DEBUG',False)))
